@@ -6,6 +6,9 @@ namespace ConsoleApplication1.Entity
     {
         public string Id { get; set; }
         public string AccountNumber { get; set; }
+
+        public string Sender { get; set; }
+        public string Receiver { get; set; }
         public string Status { get; set; } // 1. Giao dịnh thành công 0. Giao dịch thất bại //
         public string Message { get; set; }
         public string Content { get; set; }
