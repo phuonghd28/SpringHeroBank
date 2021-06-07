@@ -9,13 +9,13 @@ namespace ConsoleApplication1.View
         public Customer IsLogin = null;
         public void GetMenuBank()
         {
+            var entryController = new EntryController();
+            var accountController = new AccountController();
+            var accountMenu = new AccountMenu();
+            var aboutUs = new AboutUs();
+            var contactUs = new ContactUs();
             while (true)
             {
-                var customerController = new CustomerController();
-                var accountController = new AccountController();
-                var accountMenu = new AccountMenu();
-                var aboutUs = new AboutUs();
-                var contactUs = new ContactUs();
                 Console.WriteLine("Welcome to Spring Hero Bank");
                 Console.WriteLine("----------------------------------------");
                 Console.WriteLine("1. About Us");
@@ -32,11 +32,11 @@ namespace ConsoleApplication1.View
                         aboutUs.GetView();
                         break;
                     case 2:
-                        customerController.Create();
+                        entryController.Create();
                         break;
                     case 3:
-                        IsLogin = accountController.Login();
-                        accountMenu.GetAccountMenu(IsLogin);
+                        IsLogin = entryController.Login();
+                        accountMenu.ShowAccountMenu(IsLogin);
                         break;
                     case 4:
                         contactUs.GetView();

@@ -96,15 +96,18 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Controller\AccountController.cs" />
-        <Compile Include="Controller\CustomerController.cs" />
+        <Compile Include="Controller\EntryController.cs" />
         <Compile Include="Entity\Customer.cs" />
         <Compile Include="Entity\Transaction.cs" />
         <Compile Include="Helper\ConnectionHandler.cs" />
         <Compile Include="Model\AccountModel.cs" />
-        <Compile Include="Model\CustomerModel.cs" />
+        <Compile Include="Model\EntryModel.cs" />
+        <Compile Include="Model\TransactionModel.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Service\EntryService.cs" />
         <Compile Include="Service\ServiceManager.cs" />
+        <Compile Include="Service\TransactionService.cs" />
         <Compile Include="View\AboutUs.cs" />
         <Compile Include="View\AccountMenu.cs" />
         <Compile Include="View\ContactUs.cs" />

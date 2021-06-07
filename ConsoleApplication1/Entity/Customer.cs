@@ -6,6 +6,8 @@ namespace ConsoleApplication1.Entity
     public class Customer
     {
         public int Id { get; set; }
+        
+        public string AccountNumber { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Username { get; set; }
@@ -25,8 +27,22 @@ namespace ConsoleApplication1.Entity
             
         }
 
-        public Customer(string firstName, string lastName, string username, string password, string salt, double balance, string email, string phone, string address, int status)
+        public Customer(string accountNumber, string firstName, string lastName, string username, string password, string salt, string email, string phone, string address)
         {
+            AccountNumber = accountNumber;
+            FirstName = firstName;
+            LastName = lastName;
+            Username = username;
+            Password = password;
+            Salt = salt;
+            Email = email;
+            Phone = phone;
+            Address = address;
+        }
+
+        public Customer(string accountNumber,string firstName, string lastName, string username, string password, string salt, double balance, string email, string phone, string address, int status)
+        {
+            AccountNumber = accountNumber;
             FirstName = firstName;
             LastName = lastName;
             Username = username;
@@ -39,9 +55,10 @@ namespace ConsoleApplication1.Entity
             Status = status;
         }
 
-        public Customer(int id, string firstName, string lastName, string username, string password, string salt, double balance, string email, string phone, string address, int status, DateTime createAt, DateTime updateAt, DateTime deleteAt)
+        public Customer(int id, string accountNumber, string firstName, string lastName, string username, string password, string salt, double balance, string email, string phone, string address, int status, DateTime createAt, DateTime updateAt, DateTime deleteAt)
         {
             Id = id;
+            AccountNumber = accountNumber;
             FirstName = firstName;
             LastName = lastName;
             Username = username;
@@ -59,7 +76,12 @@ namespace ConsoleApplication1.Entity
 
         public override string ToString()
         {
-            return $"Id={Id},FirstName={FirstName},LastName={LastName},UserName={Username},Password={Password},Salt={Salt},Email={Email},Phone={Phone},Address={Address},Status={Status},CreateAt={CreateAt},UpdateAt={UpdateAt},DeleteAt={DeleteAt}";
+            return $"Id={Id},AccountNumber={AccountNumber},FirstName={FirstName},LastName={LastName},UserName={Username},Password={Password},Salt={Salt},Email={Email},Phone={Phone},Address={Address},Status={Status},CreateAt={CreateAt},UpdateAt={UpdateAt},DeleteAt={DeleteAt}";
+        }
+
+        public string ShowFormBalance()
+        {
+            return $"Hello {FirstName} {LastName}\nYour current balance : {Balance}$";
         }
     }
 }

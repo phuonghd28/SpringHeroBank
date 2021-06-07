@@ -12,74 +12,8 @@ namespace ConsoleApplication1.Model
     {
         ConnectionHandler connectionHandler = new ConnectionHandler();
         private ServiceManager _serviceManager = new ServiceManager();
+        private TransactionModel _transactionModel = new TransactionModel();
         private Customer _customer = null;
-        private Boolean isLogin = false;
-
-        public Customer Login(string account, string password)
-        {
-            MySqlConnection connection = connectionHandler.GetConnection();
-            var cmd = new MySqlCommand();
-            cmd.Connection = connection;
-            try
-            {
-                cmd.CommandText = $"SELECT * FROM Customer WHERE Username = '{account}'";
-                var result = cmd.ExecuteReader();
-
-                if (result.HasRows)
-                {
-                    while (result.Read())
-                    {
-                        var salt = result["Salt"].ToString();
-                        var hasPass = _serviceManager.HashPassword(password, salt);
-                        Console.WriteLine();
-                        if (hasPass.Equals(result["Password"].ToString()))
-                        {
-                            result.Close();
-                            cmd.CommandText = $"SELECT * FROM Customer WHERE Password = '{hasPass}'";
-                            MySqlDataReader customerData = cmd.ExecuteReader();
-                            while (customerData.Read())
-                            {
-                                var firstname = customerData["FirstName"].ToString();
-                                var lastname = customerData["LastName"].ToString();
-                                var username = customerData["Username"].ToString();
-                                var password1 = customerData["Password"].ToString();
-                                var salt1 = customerData["Salt"].ToString();
-                                var balance = double.Parse(customerData["Balance"].ToString());
-                                var email = customerData["Email"].ToString();
-                                var phone = customerData["Phone"].ToString();
-                                var address = customerData["Address"].ToString();
-                                var status = int.Parse(customerData["Status"].ToString());
-                                _customer = new Customer(firstname, lastname, username, password1, salt1, balance,
-                                    email, phone, address, status);
-                                _customer.Balance = balance;
-                                customerData.Close();
-                                Console.WriteLine("Login Success");
-                                return _customer;
-                            }
-
-                        }
-                        else
-                        {
-                            isLogin = false;
-                        }
-                    }
-
-                    if (!isLogin)
-                    {
-                        Console.WriteLine("Login Failed");
-                    }
-                    result.Close();
-                }
-
-            }
-            catch (MySqlException e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
-            return null;
-        }
 
         public Customer Payment(string username, double money)
         {
@@ -102,6 +36,7 @@ namespace ConsoleApplication1.Model
                 MySqlDataReader result1 = cmd.ExecuteReader();
                 while (result1.Read())
                 {
+                    var accountNumber = result1["AccountNumber"].ToString();
                     var firstname = result1["FirstName"].ToString();
                     var lastname = result1["LastName"].ToString();
                     var username1 = result1["Username"].ToString();
@@ -112,18 +47,13 @@ namespace ConsoleApplication1.Model
                     var phone = result1["Phone"].ToString();
                     var address = result1["Address"].ToString();
                     var status = int.Parse(result1["Status"].ToString());
-                    _customer = new Customer(firstname, lastname, username1, password, salt, balance, email, phone,
+                    _customer = new Customer(accountNumber,firstname, lastname, username1, password, salt, balance, email, phone,
                         address, status);
                     _customer.Balance = balance;
                     Console.WriteLine("Payment Success");
                 }
                 result1.Close();
-                cmd.CommandText = "INSERT INTO Transaction (AccountName,Content,Type,Status)" + "values(@AccountName,@Content,@Type,@Status)";
-                cmd.Parameters.AddWithValue("@AccountName", username);
-                cmd.Parameters.AddWithValue("@Content", $"has paid {money}$ to the account") ;
-                cmd.Parameters.AddWithValue("@Type","Payment");
-                cmd.Parameters.AddWithValue("@Status", 1);
-                cmd.ExecuteNonQuery();
+                _transactionModel.SavePayment(_customer,money);
                 return _customer;
             }
             catch (MySqlException e)
@@ -154,6 +84,7 @@ namespace ConsoleApplication1.Model
                 var result1 = cmd.ExecuteReader();
                 while (result1.Read())
                 {
+                    var accountNumber = result1["AccountNumber"].ToString();
                     var firstname = result1["FirstName"].ToString();
                     var lastname = result1["LastName"].ToString();
                     var username1 = result1["Username"].ToString();
@@ -164,17 +95,14 @@ namespace ConsoleApplication1.Model
                     var phone = result1["Phone"].ToString();
                     var address = result1["Address"].ToString();
                     var status = int.Parse(result1["Status"].ToString());
-                    _customer = new Customer(firstname, lastname, username1, password, salt, balance, email, phone,
+                    _customer = new Customer(accountNumber,firstname, lastname, username1, password, salt, balance, email, phone,
                         address, status);
                     _customer.Balance = balance;
                     Console.WriteLine("Withdrawal Success");
                 }
+
                 result1.Close();
-                cmd.CommandText = "INSERT INTO Transaction (AccountName,Content,Type,Status)" + "values(@AccountName,@Content,@Type,@Status)";
-                cmd.Parameters.AddWithValue("@AccountName", username);
-                cmd.Parameters.AddWithValue("@Content",$"have withdrawn {money}$ from the account");
-                cmd.Parameters.AddWithValue("@Type", "Withdrawal");
-                cmd.Parameters.AddWithValue("@Status", 1);
+                _transactionModel.SaveWithdrawal(_customer,money);
                 cmd.ExecuteNonQuery();
                 return _customer;
             }
@@ -187,7 +115,7 @@ namespace ConsoleApplication1.Model
 
         }
 
-        public Customer Transfer(string sender, string receiver, double money)
+        public Customer Transfer(string sender, string receiver, double money, string content)
         {
             double newBalanceSender = 0;
             double newBalanceReceiver = 0;
@@ -225,6 +153,7 @@ namespace ConsoleApplication1.Model
                     var result2 = cmd.ExecuteReader();
                     while (result2.Read())
                     {
+                        var accountNumber = result2["AccountNumber"].ToString();
                         var firstname = result2["FirstName"].ToString();
                         var lastname = result2["LastName"].ToString();
                         var username = result2["Username"].ToString();
@@ -235,33 +164,17 @@ namespace ConsoleApplication1.Model
                         var phone = result2["Phone"].ToString();
                         var address = result2["Address"].ToString();
                         var status = int.Parse(result2["Status"].ToString());
-                        _customer = new Customer(firstname, lastname, username, password, salt, balance, email, phone,
+                        _customer = new Customer(accountNumber,firstname, lastname, username, password, salt, balance, email, phone,
                             address, status);
                         _customer.Balance = balance;
                     }
                     result2.Close();
-                    cmd.CommandText = "INSERT INTO Transaction (AccountName,Content,Type,Status)" + "values(@AccountName,@Content,@Type,@Status)";
-                    cmd.Parameters.AddWithValue("@AccountName",sender);
-                    cmd.Parameters.AddWithValue("@Content", $"transferred {money}$ to {receiver} account");
-                    cmd.Parameters.AddWithValue("@Type", "Transfer");
-                    cmd.Parameters.AddWithValue("@Status", 1);
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "INSERT INTO Transaction (AccountName,Content,Type,Status)" + "values(@AccountName1,@Content1,@Type1,@Status1)";
-                    cmd.Parameters.AddWithValue("@AccountName1",receiver);
-                    cmd.Parameters.AddWithValue("@Content1",$"received {money}$ from the account {sender}");
-                    cmd.Parameters.AddWithValue("@Type1", "Transfer");
-                    cmd.Parameters.AddWithValue("@Status1", 1);
-                    cmd.ExecuteNonQuery();
+                    _transactionModel.SaveTransfer(_customer,sender,receiver,money,content,1);
                     Console.WriteLine("Transfer Success");
                 }
                 else
                 {
-                    cmd.CommandText = "INSERT INTO Transaction (AccountName,Content,Type,Status)" + "values(@AccountName,@Content,@Type,@Status)";
-                    cmd.Parameters.AddWithValue("@AccountName",sender);
-                    cmd.Parameters.AddWithValue("@Content", $"transferred {money}$ to {receiver} account");
-                    cmd.Parameters.AddWithValue("@Type", "Transfer");
-                    cmd.Parameters.AddWithValue("@Status", 0);
-                    cmd.ExecuteNonQuery();
+                    _transactionModel.SaveTransfer(_customer,sender,receiver,money,content,0);
                     Console.WriteLine("Canceled transaction");
                     _customer = null;
                 }
@@ -274,41 +187,6 @@ namespace ConsoleApplication1.Model
                 throw;
             }
 
-        }
-
-        public List<Transaction> ListTransaction(string username)
-        {
-            var transactions = new List<Transaction>();
-            MySqlConnection connection = connectionHandler.GetConnection();
-            var cmd = new MySqlCommand();
-            cmd.Connection = connection;
-            cmd.CommandText = $"SELECT * FROM Transaction WHERE AccountName = '{username}'";
-            var result = cmd.ExecuteReader();
-            if (result.HasRows)
-            {
-                while (result.Read())
-                {
-                    var status = int.Parse(result["Status"].ToString());
-                    string statusEnum;
-                    if (status == 1)
-                    {
-                        statusEnum = "Complete";
-                    }
-                    else
-                    {
-                        statusEnum = "UnComplete";
-                    }
-
-                    var time = DateTime.Parse(result["CreatAt"].ToString());
-                    var name = result["AccountName"].ToString();
-                    var content = result["Content"].ToString();
-                    var type = result["Type"].ToString();
-                    var transaction = new Transaction(statusEnum, content, type, time, name);
-                    transactions.Add(transaction);
-                }
-            }
-            result.Close();
-            return transactions;
         }
     }
 }

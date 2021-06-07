@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using ConsoleApplication1.Entity;
@@ -9,6 +10,7 @@ namespace ConsoleApplication1.Service
 {
     public class ServiceManager
     {
+        private Random random = new Random();
         public Customer Receive(string receiver)
         {
             var cnt = new ConnectionHandler();
@@ -24,6 +26,7 @@ namespace ConsoleApplication1.Service
                     Customer customer = null;
                     while (result.Read())
                     {
+                        var accountNumber = result["AccountNumber"].ToString();
                         var firstname = result["FirstName"].ToString();
                         var lastname = result["LastName"].ToString();
                         var username = result["Username"].ToString();
@@ -34,7 +37,7 @@ namespace ConsoleApplication1.Service
                         var phone = result["Phone"].ToString();
                         var address = result["Address"].ToString();
                         var status = int.Parse(result["Status"].ToString());
-                       customer = new Customer(firstname, lastname, username, password1, salt1, balance,
+                       customer = new Customer(accountNumber,firstname, lastname, username, password1, salt1, balance,
                             email, phone, address, status);
                     }
                     result.Close();
@@ -65,6 +68,11 @@ namespace ConsoleApplication1.Service
             }
 
             return affter_pass.ToString();
+        }
+        public string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

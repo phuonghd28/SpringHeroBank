@@ -8,38 +8,42 @@ namespace ConsoleApplication1.View
 {
     public class AccountMenu
     {
-        public void GetAccountMenu(Customer login)
+        public void ShowAccountMenu(Customer login)
         {
             var menu = new SpringHeroBankMenu();
             var accountController = new AccountController();
             while (true)
             {
                 Console.WriteLine($"Welcome {login.FirstName} {login.LastName}");
-                Console.WriteLine($"Balance : {login.Balance}$");
+                Console.WriteLine(login.AccountNumber);
                 Console.WriteLine("-------------------Menu------------------");
-                Console.WriteLine("1. Payment on account");
-                Console.WriteLine("2. Withdraw money from your account");
-                Console.WriteLine("3. Transfers ");
-                Console.WriteLine("4. View transaction history");
-                Console.WriteLine("5. Logout");
+                Console.WriteLine("1.Inquiry account balance");
+                Console.WriteLine("2. Payment on account");
+                Console.WriteLine("3. Withdraw money from your account");
+                Console.WriteLine("4. Transfers ");
+                Console.WriteLine("5. View transaction history");
+                Console.WriteLine("6. Logout");
                 Console.WriteLine("------------------------------------------");
                 Console.WriteLine("Choose from (1-5): ");
-                int choice = int.Parse(Console.ReadLine());
+                var choice = int.Parse(Console.ReadLine());
                 switch (choice)
                 {
                     case 1:
-                         login = accountController.Payment(login);
+                        Console.WriteLine(login.ShowFormBalance());
                         break;
                     case 2:
-                        login = accountController.Withdrawal(login);
+                         login = accountController.Payment(login);
                         break;
                     case 3:
-                        login = accountController.Transfer(login);
+                        login = accountController.Withdrawal(login);
                         break;
                     case 4:
-                        accountController.TransactionHistory(login.Username);
+                        login = accountController.Transfer(login);
                         break;
                     case 5:
+                        accountController.TransactionHistory(login.AccountNumber);
+                        break;
+                    case 6:
                         login = null;
                         Console.WriteLine("Logout Success");
                         menu.GetMenuBank();

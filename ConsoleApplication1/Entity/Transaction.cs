@@ -4,10 +4,12 @@ namespace ConsoleApplication1.Entity
 {
     public class Transaction
     {
-        public int Id { get; set; }
-        public string AccountName { get; set; }
+        public string Id { get; set; }
+        public string AccountNumber { get; set; }
         public string Status { get; set; } // 1. Giao dịnh thành công 0. Giao dịch thất bại //
+        public string Message { get; set; }
         public string Content { get; set; }
+        public double Amount { get; set; }
         public string Type { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime UpdateAt { get; set; }
@@ -17,11 +19,11 @@ namespace ConsoleApplication1.Entity
         {
             
         }
-        public Transaction(string status, string content, string type, DateTime createAt, string accountName)
+        public Transaction(string status, string message, string type, DateTime createAt, string accountNumber)
         {
-            AccountName = accountName;
+            AccountNumber = accountNumber;
             Status = status;
-            Content = content;
+            Message = message;
             Type = type;
             CreateAt = createAt;
         }
@@ -29,7 +31,7 @@ namespace ConsoleApplication1.Entity
 
         public override string ToString()
         {
-            return $"Time :{CreateAt} |Content: {Content} | Type: {Type} | Status: {Status}\n";
+            return $"Time :{CreateAt} |Message: {Message} | Type: {Type} | Status: {Status}\n";
         }
     }
 }
